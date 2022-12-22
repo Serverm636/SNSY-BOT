@@ -73,7 +73,7 @@ module.exports = {
             if (!result4.mainRole) {
                 return await interaction.reply({ content: '**❌ The main role have not been set up. Please use `/set main-role`**' });
             }
-            const mainRole = result4.mainRole
+            let mainRoles = result4.mainRole.split(' ')
 
             if (subCommand === 'ban') {
                 let ok = false
@@ -103,7 +103,7 @@ module.exports = {
                             type: 'ban',
                         })
                         if (result) {
-                            return await interaction.reply(`<@${user.id}> is already banned.`)
+                            return await interaction.reply({ content: `❌ <@${user.id}> is already banned.` })
                         }
                         let banReason = interaction.options.getString('reason');
 
@@ -112,12 +112,12 @@ module.exports = {
 
                         if (!banReason) {
                             banReason = 'No reason provided'
-                            await interaction.reply(`<@${memberTarget.user.id}> has been banned.`);
+                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned.` });
                         }
                         else {
-                            await interaction.reply(`<@${memberTarget.user.id}> has been banned for ${banReason}.`);
+                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned for ${banReason}.` });
                         }
-                        
+
                         //SANCTIUNI
                         let schema = await punishmentSchema.create({
                             guildID: guildId,
@@ -126,8 +126,8 @@ module.exports = {
                             reason: banReason,
                             type: 'ban',
                         })
-                        schema.save();
-        
+                        await schema.save();
+
                         //ARHIVA
                         let arhiva = await archiveSchema.create({
                             guildID: guildId,
@@ -136,45 +136,47 @@ module.exports = {
                             reason: banReason,
                             type: 'ban',
                         })
-                        arhiva.save();
-        
-                            //#SANCTIUNI
-                            const mesaj = new MessageEmbed()
+                        await arhiva.save();
+
+                        //#SANCTIUNI
+                        let date = new Date()
+                        const mesaj = new MessageEmbed()
                             .setTitle('BAN')
                             .setColor('RED')
-                            .setFooter(`${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                            .addField(
-                                'ID',
-                                `${memberTarget.id}`,
-                                true
-                            )
-                            .addField(
-                                'Nickname',
-                                memberTarget.nickname || bannedMember.tag.substring(0, bannedMember.tag.length - 5),
-                                true
-                            )
-                            .addField(
-                                'Mention',
-                                `<@${memberTarget.id}>`,
-                                true
-                            )
-                            .addField(
-                                'Banned by',
-                                `<@${interaction.user.id}>`,
-                                true
-                            )
-                            .addField(
-                                'Nickname',
-                                interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
-                                true
-                            )
-                            .addField(
-                                'Reason',
-                                `${banReason}`,
-                                true
-                            )
-                            client.channels.cache.get(channel).send({ embeds: [mesaj] });
-                            return;
+                            .setFooter({
+                                text: `${date.toLocaleDateString()}`
+                            })
+                            .addFields({
+                                name: 'ID',
+                                value: `${memberTarget.id}`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Nickname',
+                                value: memberTarget.nickname || bannedMember.tag.substring(0, bannedMember.tag.length - 5),
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Mention',
+                                value: `<@${memberTarget.id}>`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Banned by',
+                                value: `<@${interaction.user.id}>`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Nickname',
+                                value: interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Reason',
+                                value: `${banReason}`,
+                                inline: true
+                            })
+                        return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                     }
                 }
                 await interaction.reply({ content: '**❌ You are not authorized to use this**' });
@@ -195,12 +197,19 @@ module.exports = {
                 if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')) {
                     const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
                     const bannedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
-                    if (user){
+                    if (user) {
                         let memberTarget = interaction.guild.members.cache.get(user.id);
-                        let unbanReason = interaction.options.getString('reason');
-                        await memberTarget.roles.add(mainRole);
+                        let unbanReason = interaction.options.getString('reason')
+                        if (isIterable(mainRoles)) {
+                            for (const role of mainRoles) {
+                                await memberTarget.roles.add(role)
+                            }
+                        }
+                        else {
+                            await memberTarget.roles.add(mainRoles)
+                        }
                         await memberTarget.roles.remove(banRole);
-                        await interaction.reply(`<@${memberTarget.user.id}> has been unbanned.`);
+                        await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unbanned.` });
                         if (!unbanReason) {
                             unbanReason = 'No reason provided'
                         }
@@ -210,13 +219,6 @@ module.exports = {
                             guildID: guildId,
                             userID: memberTarget.user.id,
                         }
-                        const results = await punishmentSchema.findOne(query)
-                        // for (const result of results){
-                        //     const { type } = result
-                        //     if (type === 'ban'){
-                        //         await punishmentSchema.deleteMany(query)
-                        //     }
-                        // }
                         await punishmentSchema.deleteMany(query)
         
                         //ARHIVA
@@ -227,45 +229,47 @@ module.exports = {
                             reason: unbanReason,
                             type: 'unban',
                         })
-                        arhiva.save();
+                        await arhiva.save();
         
                         //#SANCTIUNI
+                        let date = new Date()
                         const mesaj = new MessageEmbed()
                             .setTitle('UNBAN')
                             .setColor('GREEN')
-                            .setFooter(`${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                            .addField(
-                                'ID',
-                                `${memberTarget.id}`,
-                                true
-                            )
-                            .addField(
-                                'Nickname',
-                                memberTarget.nickname || bannedMember.tag.substring(0, bannedMember.tag.length - 5),
-                                true
-                            )
-                            .addField(
-                                'Mention',
-                                `<@${memberTarget.id}>`,
-                                true
-                            )
-                            .addField(
-                                'Unbanned by',
-                                `<@${interaction.user.id}>`,
-                                true
-                            )
-                            .addField(
-                                'Nickname',
-                                interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
-                                true
-                            )
-                            .addField(
-                                'Reason',
-                                `${unbanReason}`,
-                                true
-                            )
-                            client.channels.cache.get(channel).send({ embeds: [mesaj] });
-                            return;
+                            .setFooter({
+                                text: `${date.toLocaleDateString()}`
+                            })
+                            .addFields({
+                                name: 'ID',
+                                value: `${memberTarget.id}`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Nickname',
+                                value: memberTarget.nickname || bannedMember.tag.substring(0, bannedMember.tag.length - 5),
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Mention',
+                                value: `<@${memberTarget.id}>`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Unbanned by',
+                                value: `<@${interaction.user.id}>`,
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Nickname',
+                                value: interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
+                                inline: true
+                            })
+                            .addFields({
+                                name: 'Reason',
+                                value: `${unbanReason}`,
+                                inline: true
+                            })
+                            return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                     }
                 }
             }
@@ -275,4 +279,12 @@ module.exports = {
             console.log(err)
         }
     }
+}
+
+function isIterable(obj) {
+    // checks for null and undefined
+    if (obj == null) {
+        return false;
+    }
+    return typeof obj[Symbol.iterator] === 'function';
 }

@@ -18,7 +18,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to soft-ban other members.',
+                    description: 'Roles to have acces to soft-ban other members',
                     type: 'STRING',
                     required: true,
                 },
@@ -31,7 +31,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to soft-unban other members.',
+                    description: 'Roles to have acces to soft-unban other members',
                     type: 'STRING',
                     required: true,
                 },
@@ -44,7 +44,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to mute other members.',
+                    description: 'Roles to have acces to mute other members',
                     type: 'STRING',
                     required: true,
                 },
@@ -57,7 +57,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to unmute other members.',
+                    description: 'Roles to have acces to unmute other members',
                     type: 'STRING',
                     required: true,
                 },
@@ -70,7 +70,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to kick other members.',
+                    description: 'Roles to have acces to kick other members',
                     type: 'STRING',
                     required: true,
                 },
@@ -83,7 +83,7 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to other members history.',
+                    description: 'Roles to have acces to other members history',
                     type: 'STRING',
                     required: true,
                 },
@@ -96,14 +96,14 @@ module.exports = {
             options: [
                 {
                     name: 'roles',
-                    description: 'Roles to have acces to mass delete messages.',
+                    description: 'Roles to have acces to mass delete messages',
                     type: 'STRING',
                     required: true,
                 },
             ],
         },
     ],
-    async execute(client, interaction){
+    async execute(client, interaction) {
         try {
             if (interaction.member.permissions.has('ADMINISTRATOR')) {
                 const guildID = interaction.guild.id;
@@ -118,7 +118,12 @@ module.exports = {
                         rolesSoftBan = schema.rolesBan.split(' ')
                         for (let i = 0; i < rolesSoftBan.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesSoftBan[i])
-                            rolesSoftBan[i] = " " + role.name
+                            if (role) {
+                                rolesSoftBan[i] = " " + role.name
+                            }
+                            else {
+                                rolesSoftBan[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -126,7 +131,12 @@ module.exports = {
                         rolesSoftUnban = schema.rolesUnban.split(' ')
                         for (let i = 0; i < rolesSoftUnban.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesSoftUnban[i])
-                            rolesSoftUnban[i] = " " + role.name
+                            if (role) {
+                                rolesSoftUnban[i] = " " + role.name
+                            }
+                            else {
+                                rolesSoftUnban[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -134,7 +144,12 @@ module.exports = {
                         rolesMute = schema.rolesMute.split(' ')
                         for (let i = 0; i < rolesMute.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesMute[i])
-                            rolesMute[i] = " " + role.name
+                            if (role) {
+                                rolesMute[i] = " " + role.name
+                            }
+                            else {
+                                rolesMute[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -142,7 +157,12 @@ module.exports = {
                         rolesUnmute = schema.rolesUnmute.split(' ')
                         for (let i = 0; i < rolesUnmute.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesUnmute[i])
-                            rolesUnmute[i] = " " + role.name
+                            if (role) {
+                                rolesUnmute[i] = " " + role.name
+                            }
+                            else {
+                                rolesUnmute[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -150,7 +170,12 @@ module.exports = {
                         rolesKick = schema.rolesKick.split(' ')
                         for (let i = 0; i < rolesKick.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesKick[i])
-                            rolesKick[i] = " " + role.name
+                            if (role) {
+                                rolesKick[i] = " " + role.name
+                            }
+                            else {
+                                rolesKick[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -158,7 +183,12 @@ module.exports = {
                         rolesHist = schema.rolesHist.split(' ')
                         for (let i = 0; i < rolesHist.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesHist[i])
-                            rolesHist[i] = " " + role.name
+                            if (role) {
+                                rolesHist[i] = " " + role.name
+                            }
+                            else {
+                                rolesHist[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -166,7 +196,12 @@ module.exports = {
                         rolesPurge = schema.rolesPurge.split(' ')
                         for (let i = 0; i < rolesPurge.length; ++i) {
                             let role = interaction.guild.roles.cache.find(r => r.id === rolesPurge[i])
-                            rolesPurge[i] = " " + role.name
+                            if (role) {
+                                rolesPurge[i] = " " + role.name
+                            }
+                            else {
+                                rolesPurge[i] = " " + "deleted-role"
+                            }
                         }
                     }
 
@@ -210,7 +245,7 @@ module.exports = {
                 roles = roles.replaceAll('@', '');
                 roles = roles.replaceAll('&', '');
                 roles = roles.replaceAll('>', '');
-                switch (subCommand){
+                switch (subCommand) {
                     case 'soft-ban':
                         await interaction.reply(`✅ Roles: ${rolesName} have been authorized for ${subCommand}.`)
 
@@ -218,11 +253,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesBan = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -239,11 +274,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesUnban = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -260,11 +295,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesMute = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -281,11 +316,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesUnmute = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -302,11 +337,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesKick = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -323,11 +358,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesHist = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -344,11 +379,11 @@ module.exports = {
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
-                        if (schema){
+                        if (schema) {
                             schema.rolesPurge = roles
                             await schema.save();
                         }
-                        else{
+                        else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
@@ -361,7 +396,7 @@ module.exports = {
                 }
                 return;
             }
-            await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... please contact me: Sergetec#6803 🤔**' })
             console.log(err)

@@ -37,8 +37,7 @@ module.exports = {
 
             ❓ Here\'s the creator\'s discord, if you encounter any problems or you wish to make a suggestion you can always contact him: **\`Sergetec#6803\`**`
         )
-        .setColor('0x5100ff')
-        .setFooter(`${process.env.VERSION}`)
+        .setColor('#5100FF')
     
         await channelToSend.send({ embeds: [mesaj1] });
 
@@ -48,7 +47,9 @@ module.exports = {
             `❗ **You will have to either push my role the highest or make the role for bots the highest, so that I will have permission to manage all roles**`
         )
         .setColor('RED')
-        .setFooter(`${process.env.VERSION}`)
+        .setFooter({
+            text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`,
+        })
 
         await channelToSend.send({ embeds: [mesaj2] });
         let schema

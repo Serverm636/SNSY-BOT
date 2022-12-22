@@ -39,7 +39,7 @@ module.exports = {
             if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')){
                 const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
                 const mutedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
-                if (user){
+                if (user) {
                     const result2 = await guildCommandsSchema.findOne({
                         guildID: guildId
                     })
@@ -61,7 +61,7 @@ module.exports = {
 
                     await memberTarget.roles.remove(muteRole);
 
-                    await interaction.reply(`<@${memberTarget.user.id}> has been unmuted`);
+                    await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unmuted` });
                     if (!unmuteReason) {
                         unmuteReason = 'No reason provided'
                     }
@@ -86,42 +86,44 @@ module.exports = {
                     arhiva.save();
 
                     //#SANCTIUNI
+                    let date = new Date()
                     const mesaj = new MessageEmbed()
                         .setTitle('UNMUTE')
                         .setColor('GREEN')
-                        .setFooter(`${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                        .addField(
-                            'ID',
-                            `${memberTarget.id}`,
-                            true
-                        )
-                        .addField(
-                            'Nickname',
-                            memberTarget.nickname || mutedMember.tag.substring(0, mutedMember.tag.length - 5),
-                            true
-                        )
-                        .addField(
-                            'Mention',
-                            `<@${memberTarget.id}>`,
-                            true
-                        )
-                        .addField(
-                            'Unmuted by',
-                            `<@${interaction.user.id}>`,
-                            true
-                        )
-                        .addField(
-                            'Nickname',
-                            interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
-                            true
-                        )
-                        .addField(
-                            'Reason',
-                            `${unmuteReason}`,
-                            true
-                        )
-                        client.channels.cache.get(channel).send({ embeds: [mesaj] });
-                        return;
+                        .setFooter({
+                            text: `${date.toLocaleDateString()}`
+                        })
+                        .addFields({
+                            name: 'ID',
+                            value: `${memberTarget.id}`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Nickname',
+                            value: memberTarget.nickname || mutedMember.tag.substring(0, mutedMember.tag.length - 5),
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Mention',
+                            value: `<@${memberTarget.id}>`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Unmuted by',
+                            value: `<@${interaction.user.id}>`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Nickname',
+                            value: interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Reason',
+                            value: `${unmuteReason}`,
+                            inline: true
+                        })
+                        return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                 }
             }
             await interaction.reply({ content: '**❌ You are not authorized to use this**' });

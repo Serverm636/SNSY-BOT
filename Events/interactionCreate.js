@@ -60,7 +60,7 @@ module.exports = {
                             SEND_MESSAGES: true,
                             READ_MESSAGE_HISTORY: true,
                             MANAGE_MESSAGES: false,
-                        });
+                        })
                     }
                     let row = new MessageActionRow()
                         .addComponents(new MessageButton()
@@ -69,16 +69,16 @@ module.exports = {
                             .setStyle("DANGER")
                         );
                     const mesaj = new MessageEmbed()
-                    .setTitle('Ticket')
-                    .setDescription('A staff member will take over your ticket as soon as notified.')
+                    .setTitle('Unban ticket')
+                    .setDescription('A staff member will take over your ticket as soon as possible.')
                     .setColor('RED')
                     await channel.send({content: `<@${user}> Here is your unban ticket`, embeds: [mesaj], components: [row]});
-                    await client.channels.cache.get(canalStaffNotif).send(`<@&${staff}> user <@${user}> opened the unban ticket <#${channel.id}>`)
-                });
+                    await client.channels.cache.get(canalStaffNotif).send(`<@&${staff}> <@${user}> **has opened an unban request ⇒** <#${channel.id}>`)
+                })
             }
             else if (interaction.customId === "close-ticket" && interaction.member.roles.cache.has(staff[0])) {
                 await interaction.deferUpdate()
-                await interaction.channel.delete();
+                await interaction.channel.delete()
             }
         }
 
@@ -92,9 +92,9 @@ module.exports = {
 
             const command = client.commands.get(interaction.commandName)
             if (!command) {
-                return;
+                return
             }
-            command.execute(client, interaction);
+            command.execute(client, interaction)
         }
     }
 }

@@ -80,6 +80,9 @@ module.exports = {
                     if (!containsNumber(time)) {
                         return await interaction.reply('Invalid format');
                     }
+                    if (containsWhitespace(time)) {
+                        return await interaction.reply('Invalid format');
+                    }
                     let split = time.match(/\d+|\D+/g)
                     let time2 = parseInt(split[0])
                     let type = split[1].toLowerCase();
@@ -127,47 +130,49 @@ module.exports = {
                     arhiva.save();
                     
                     //#SANCTIUNI
+                    let date = new Date()
                     const mesaj = new MessageEmbed()
                         .setTitle('MUTE')
                         .setColor('RED')
-                        .setFooter(`${process.env.VERSION} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                        .addField(
-                            'ID',
-                            `${memberTarget.id}`,
-                            true
-                        )
-                        .addField(
-                            'Nickname',
-                            memberTarget.nickname || mutedMember.tag.substring(0, mutedMember.tag.length - 5),
-                            true
-                        )
-                        .addField(
-                            'Mention',
-                            `<@${memberTarget.id}>`,
-                            true
-                        )
-                        .addField(
-                            'Muted by',
-                            `<@${interaction.user.id}>`,
-                            true
-                        )
-                        .addField(
-                            'Nickname',
-                            interaction.user.nickname ||interaction.user.tag.substring(0, interaction.user.tag.length - 5),
-                            true
-                        )
-                        .addField(
-                            'Reason',
-                            `${muteReason}`,
-                            true
-                        )
-                        .addField(
-                            'Time',
-                            `${time}`,
-                            true
-                        )
-                        client.channels.cache.get(channel).send({ embeds: [mesaj] });
-                        return;
+                        .setFooter({
+                            text: `${date.toLocaleDateString()}`
+                        })
+                        .addFields({
+                            name: 'ID',
+                            value: `${memberTarget.id}`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Nickname',
+                            value: memberTarget.nickname || mutedMember.tag.substring(0, mutedMember.tag.length - 5),
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Mention',
+                            value: `<@${memberTarget.id}>`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Muted by',
+                            value: `<@${interaction.user.id}>`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Nickname',
+                            value: interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Reason',
+                            value: `${muteReason}`,
+                            inline: true
+                        })
+                        .addFields({
+                            name: 'Duration',
+                            value: `${time}`,
+                            inline: true
+                        })
+                        return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                 }
             }
             await interaction.reply({ content: '**❌ You are not authorized to use this**' });
@@ -180,4 +185,8 @@ module.exports = {
 
 function containsNumber(str){
     return /\d/.test(str);
-  }
+}
+
+function containsWhitespace(str) {
+    return /\s/.test(str);
+}

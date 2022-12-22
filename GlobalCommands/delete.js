@@ -13,23 +13,21 @@ module.exports = {
             required: true,
         },
     ],
-    async execute (client, interaction){
+    async execute (client, interaction) {
         const guildId = interaction.guild.id
-        if (interaction.member.permissions.has('ADMINISTRATOR')){
+        if (interaction.member.permissions.has('ADMINISTRATOR')) {
             const id = interaction.options.getString('id');
             //ARCHIVE SCHEMA
             const query = {
                 guildID: guildId,
                 _id: id,
             }
-            const result = await archiveSchema.findOne(query)
             await archiveSchema.deleteMany(query)
 
             //PUNISHMENT SCHEMA
-            const result2 = await punishmentSchema.findOne(query)
             await punishmentSchema.deleteMany(query)
-            await interaction.reply(`${interaction.options.getString('id')} ID removed`);
-            return;
+
+            return await interaction.reply({ content: `✅ ${interaction.options.getString('id')} ID removed` });
         }
         await interaction.reply({ content: '**❌ You are not authorized to use this**' });
     }

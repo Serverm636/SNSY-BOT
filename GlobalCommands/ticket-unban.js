@@ -13,39 +13,45 @@ module.exports = {
         },
     ],
     async execute(client, interaction) {
-        if (interaction.member.permissions.has('ADMINISTRATOR')) {
-            let row = new MessageActionRow()
-                .addComponents(new MessageButton()
-                .setCustomId("open-ticket")
-                .setLabel("Open ticket")
-                .setEmoji("📩")
-                .setStyle("PRIMARY")
-            );
-            const mesaj = new MessageEmbed()
+        try {
+            if (interaction.member.permissions.has('ADMINISTRATOR')) {
+                let row = new MessageActionRow()
+                    .addComponents(new MessageButton()
+                        .setCustomId("open-ticket")
+                        .setLabel("Open ticket")
+                        .setEmoji("📩")
+                        .setStyle("PRIMARY")
+                    );
+                const mesaj = new MessageEmbed()
                     .setTitle('Unban ticket')
-                    .setDescription('If you see this it means you are banned.\nTo open an unban ticket, please click on the button below.')
+                    .setDescription('If you see this it means that you are banned.\nTo open an unban ticket, please click on the button below.')
                     .setColor('RED')
-                    
-            const guildId = interaction.guild.id
-            let schema = await guildCommandsSchema.findOne({
-                guildID: guildId,
-            })
-            if (!schema.bannedChannel) {
-                return await interaction.reply('**❌ You have not set up the banned channel. Please use `/set banned-channel`**')
-            }
-            const channel = schema.bannedChannel
 
-            if (!schema.bannedCategory) {
-                return await interaction.reply('**❌ You have not set up the banned category. Please use `/set banned-category`**')
-            }
-            
-            if (!schema.staffRole) {
-                return await interaction.reply('**❌ You have not set up the staff role. Please use `/set staff-role`**')
-            }
+                const guildId = interaction.guild.id
+                let schema = await guildCommandsSchema.findOne({
+                    guildID: guildId,
+                })
+                if (!schema.bannedChannel) {
+                    return await interaction.reply({content: '**❌ You have not set up the banned channel. Please use `/set banned-channel`**'})
+                }
+                const channel = schema.bannedChannel
 
-            client.channels.cache.get(channel).send({ embeds: [mesaj], components: [row] });
-            return await interaction.reply({ content: '✅ Generated'} );
+                if (!schema.bannedCategory) {
+                    return await interaction.reply({content: '**❌ You have not set up the banned category. Please use `/set banned-category`**'})
+                }
+                if (!schema.staffRole) {
+                    return await interaction.reply({content: '**❌ You have not set up the staff role. Please use `/set staff-role`**'})
+                }
+                if (!schema.notificationsChannel) {
+                    return await interaction.reply({content: '**❌ You have not set up the notifications channel for staff. Please use `/set notifications-channel`**'})
+                }
+                client.channels.cache.get(channel).send({embeds: [mesaj], components: [row]})
+                return await interaction.reply({content: '✅ Generated'})
+            }
+            return await interaction.reply({content: '**❌ You are not authorized to use this**'})
+        } catch (err) {
+            console.log(err)
+            return await interaction.reply({ content: "Something went wrong 🤔 if you don't know what's the issue, contact me via Discord. Sergetec#6803" })
         }
-        await interaction.reply({ content: '**❌ You are not authorized to use this**' });
     }
 }

@@ -57,7 +57,7 @@ module.exports = {
                     userID: user.id,
                     type: 'kick',
                 })
-                if (result3){
+                if (result3) {
                     return await interaction.reply(`<@${user.id}> is already kicked out.`)
                 }
                 let kickReason = interaction.options.getString('reason');
@@ -65,7 +65,7 @@ module.exports = {
                     kickReason = 'No reason provided'
                 }
                 await interaction.reply(`<@${user.id}> was kicked by <@${interaction.user.id}>`)
-                await memberTarget.kick({reason: kickReason});
+                await memberTarget.kick({ reason: kickReason });
                 
                 /*
                     Fara sanctiuni-scheme, pt ca nu are rost daca deja e stocat in arhiva
@@ -81,44 +81,46 @@ module.exports = {
                 arhiva.save();
 
                 //#SANCTIUNI
+                let date = new Date()
                 const mesaj = new MessageEmbed()
                     .setTitle('KICK')
                     .setColor('RED')
-                    .setFooter(`${process.env.VERSION} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                    .addField(
-                        'ID',
-                        `${memberTarget.id}`,
-                        true
-                    )
-                    .addField(
-                        'Nickname',
-                        memberTarget.nickname || kickedMember.tag.substring(0, kickedMember.tag.length - 5),
-                        true
-                    )
-                    .addField(
-                        'Mention',
-                        `<@${memberTarget.id}>`,
-                        true
-                    )
-                    .addField(
-                        'Kicked by',
-                        `<@${interaction.user.id}>`,
-                        true
-                    )
-                    .addField(
-                        'Nickname',
-                        interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
-                        true
-                    )
-                    .addField(
-                        'Reason',
-                        `${kickReason}`,
-                        true
-                    )
-                    client.channels.cache.get(channel).send({ embeds: [mesaj] });
-                    return;
+                    .setFooter({
+                        text: `${date.toLocaleDateString()}`
+                    })
+                    .addFields({
+                        name: 'ID',
+                        value: `${memberTarget.id}`,
+                        inline: true
+                    })
+                    .addFields({
+                        name: 'Nickname',
+                        value: memberTarget.nickname || kickedMember.tag.substring(0, kickedMember.tag.length - 5),
+                        inline: true
+                    })
+                    .addFields({
+                        name: 'Mention',
+                        value: `<@${memberTarget.id}>`,
+                        inline: true
+                    })
+                    .addFields({
+                        name: 'Kicked by',
+                        value: `<@${interaction.user.id}>`,
+                        inline: true
+                    })
+                    .addFields({
+                        name: 'Nickname',
+                        value: interaction.user.nickname || interaction.user.tag.substring(0, interaction.user.tag.length - 5),
+                        inline: true
+                    })
+                    .addFields({
+                        name: 'Reason',
+                        value: `${kickReason}`,
+                        inline: true
+                    })
+                    return client.channels.cache.get(channel).send({ embeds: [mesaj] });
             }
-            await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... check if my role is above all the other roles 🤔**' })
             console.log(err)

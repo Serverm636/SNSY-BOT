@@ -35,17 +35,19 @@ module.exports = {
                 let memberTarget = interaction.options.getUser('user');
                 if (user) {
                     const results = await archiveSchema.find({
-                        guilID: guildId,
+                        guildID: guildId,
                         userID: user.id,
                     })
                     if (results.length === 0) {
                         let mesaj = new MessageEmbed()
                         .setColor('RED')
-                        .addField(
-                            `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
-                            'clean',
-                        )
-                        .setFooter(`${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
+                        .addFields({
+                            name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
+                            value: 'clean'
+                        })
+                        .setFooter({
+                            text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
+                        })
                         return await interaction.reply({ embeds: [mesaj] });
                     }
                     let reply = ''
@@ -55,44 +57,61 @@ module.exports = {
                     let existsPunishments = false;
                     let pagina = 0
                     for (const result of results) {
-                        if (result.guildID === guildId) {
-                            reply += `[${result._id}] **${result.type.toUpperCase()}** at ${new Date(result.createdAt).toLocaleDateString()} by <@${result.staffID}> for \`${result.reason}\`\n\n`
-                            numberCheck++
-                            if (numberCheck % 5 === 0) {
-                                pagina++
-                                embeds.push(new MessageEmbed()
-                                    .setColor('RED')
-                                    .setFooter(`Page: ${pagina} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                                    .addField(
-                                        `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
-                                        `${reply}`,
-                                    )
-                                )
-                                reply = ''
-                                existsPunishments = true
-                            }
+                        reply += `[${result._id}] **${result.type.toUpperCase()}** at ${new Date(result.createdAt).toLocaleDateString()} by <@${result.staffID}> for \`${result.reason}\`\n\n`
+                        numberCheck++
+                        if (numberCheck % 5 === 0) {
+                            pagina++
+                            embeds.push(new MessageEmbed()
+                                .setColor('RED')
+                                .setFooter({
+                                    text: `Page: ${pagina} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`
+                                })
+                                .addFields({
+                                    name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
+                                    value: `${reply}`
+                                })
+                            )
+                            reply = ''
+                            existsPunishments = true
                         }
                     }
-                    if (numberCheck % 5 !== 0) {
+                    if (numberCheck < 5) { //doar o pagina
+                        existsPunishments = true
+                        let message = new MessageEmbed()
+                            .setColor('RED')
+                            .addFields({
+                                name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
+                                value: `${reply}`
+                            })
+                            .setFooter({
+                                text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
+                            })
+                        return await interaction.reply({ embeds: [message] });
+                    }
+                    if (numberCheck % 5 !== 0) { //adaugam ultima pagina daca nu avem fix 5 pe ultima pagina
                         existsPunishments = true
                         pagina++
                         embeds.push(new MessageEmbed()
                             .setColor('RED')
-                            .setFooter(`Page: ${pagina} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
-                            .addField(
-                                `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
-                                `${reply}`,
-                            )
+                            .addFields({
+                                name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
+                                value: `${reply}`
+                            })
+                            .setFooter({
+                                text: `Page: ${pagina} • ${new Date(interaction.createdTimestamp).toLocaleDateString()}`
+                            })
                         )
                     }
                     if (reply === '' && !existsPunishments) {
                         let mesaj = new MessageEmbed()
                         .setColor('RED')
-                        .addField(
-                            `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
-                            'clean',
-                        )
-                        .setFooter(`${new Date(interaction.createdTimestamp).toLocaleDateString()}`)
+                        .addFields({
+                            name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
+                            value: 'clean'
+                        })
+                        .setFooter({
+                            text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
+                        })
                         return await interaction.reply({ embeds: [mesaj] });
                     }
                     const getRow = (id) => {
@@ -144,7 +163,7 @@ module.exports = {
                             return;
                         }
                         // interaction.deferReply()
-                        if (btnInt.customId !== 'prev_embed' && btnInt.customId !== 'next_embed'){
+                        if (btnInt.customId !== 'prev_embed' && btnInt.customId !== 'next_embed') {
                             return;
                         }
                         await btnInt.deferUpdate()
@@ -164,9 +183,9 @@ module.exports = {
                     return;
                 }
             }
-            await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
         } catch(err) {
-            await interaction.reply({ content: '**❌ Oops something went wrong... check if the user is in the server 🤔**' })
+            await interaction.reply({ content: '**❌ Oops something went wrong... check if the user is still in the server 🤔**' })
             console.log(err)
         }
     }

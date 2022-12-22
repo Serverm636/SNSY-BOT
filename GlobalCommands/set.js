@@ -6,14 +6,14 @@ module.exports = {
     description: 'Setup channel/roles',
     options: [
         {
-            name: 'main-role',
+            name: 'member-roles',
             type: 'SUB_COMMAND',
-            description: 'The member role',
+            description: 'The member roles',
             options: [
                 {
-                    name: 'role',
-                    description: 'The member role',
-                    type: 'ROLE',
+                    name: 'roles',
+                    description: 'The member role or roles if there are more default roles. (like separator roles)',
+                    type: 'STRING',
                     required: true,
                 },
             ],
@@ -65,134 +65,101 @@ module.exports = {
                 let schema
                 const subCommand = interaction.options.getSubcommand()
                 switch (subCommand) {
-                    case 'main-role':
-                        const mainRole = interaction.options.getRole('role')
-                        await interaction.reply(`✅ Role: ${mainRole} have been set as the main role.`)
+                    case 'member-roles':
+                        let roles = interaction.options.getString('roles')
+                        roles = roles.replace(/\s\s+/g, ' ') //delete every duplicate white space
+                        const rolesName = roles
+                        roles = roles.replaceAll('<', '')
+                        roles = roles.replaceAll('@', '')
+                        roles = roles.replaceAll('&', '')
+                        roles = roles.replaceAll('>', '')
+                        await interaction.reply({ content: `✅ Role: ${rolesName} have been set as the member role(s).` })
 
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
-                            schema.mainRole = mainRole
+                            schema.mainRole = roles
                             await schema.save();
                         }
                         else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
-                                mainRole: mainRole,
+                                mainRole: roles,
                             })
                             await schema.save();
                         }
-
-                        schema = await guildCommandsSchema.findOne({
-                            guildID: guildID,
-                        })
-                        let newMainRole = schema.mainRole;
-                        newMainRole = newMainRole.replaceAll('<', '');
-                        newMainRole = newMainRole.replaceAll('@', '');
-                        newMainRole = newMainRole.replaceAll('&', '');
-                        newMainRole = newMainRole.replaceAll('>', '');
-                        schema.mainRole = newMainRole
-                        await schema.save()
 
                         break;
                     case 'warns-channel':
                         const warnsChannel = interaction.options.getChannel('channel')
-                        await interaction.reply(`✅ Channel: ${warnsChannel} have been set as the warns channel.`)
+                        let newWarnsChannel = warnsChannel.id
+                        await interaction.reply({ content: `✅ Channel: ${warnsChannel} have been set as the warns channel.` })
 
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
-                            schema.warnsChannel = warnsChannel
+                            schema.warnsChannel = newWarnsChannel
                             await schema.save();
                         }
                         else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
-                                warnsChannel: warnsChannel,
+                                warnsChannel: newWarnsChannel,
                             })
                             await schema.save();
                         }
-
-                        schema = await guildCommandsSchema.findOne({
-                            guildID: guildID,
-                        })
-                        let newWarnsChannel = schema.warnsChannel;
-                        newWarnsChannel = newWarnsChannel.replaceAll('<', '');
-                        newWarnsChannel = newWarnsChannel.replaceAll('#', '');
-                        newWarnsChannel = newWarnsChannel.replaceAll('>', '');
-                        schema.warnsChannel = newWarnsChannel
-                        await schema.save()
 
                         break;
                     case 'notifications-channel':
                         const noticationsChannel = interaction.options.getChannel('channel')
-                        await interaction.reply(`✅ Channel: ${noticationsChannel} have been set as the notifications channel.`)
+                        let newNotificationsChannel = noticationsChannel.id
+                        await interaction.reply({ content: `✅ Channel: ${noticationsChannel} have been set as the notifications channel.` })
 
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
-                            schema.notificationsChannel = noticationsChannel
+                            schema.notificationsChannel = newNotificationsChannel
                             await schema.save();
                         }
                         else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
-                                notificationsChannel: noticationsChannel,
+                                notificationsChannel: newNotificationsChannel,
                             })
                             await schema.save();
                         }
-
-                        schema = await guildCommandsSchema.findOne({
-                            guildID: guildID,
-                        })
-                        let newNotificationsChannel = schema.notificationsChannel;
-                        newNotificationsChannel = newNotificationsChannel.replaceAll('<', '');
-                        newNotificationsChannel = newNotificationsChannel.replaceAll('#', '');
-                        newNotificationsChannel = newNotificationsChannel.replaceAll('>', '');
-                        schema.notificationsChannel = newNotificationsChannel
-                        await schema.save()
 
                         break;
                     case 'staff-role':
                         const staffRole = interaction.options.getRole('role')
-                        await interaction.reply(`✅ Role: ${staffRole} have been set as the staff role.`)
+                        let newStaffRole = staffRole.id
+                        await interaction.reply({ content: `✅ Role: ${staffRole} have been set as the staff role.` })
 
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
-                            schema.staffRole = staffRole
+                            schema.staffRole = newStaffRole
                             await schema.save();
                         }
                         else {
                             //DATABASE
                             schema = await guildCommandsSchema.create({
                                 guildID: guildID,
-                                staffRole: staffRole,
+                                staffRole: newStaffRole,
                             })
                             await schema.save();
                         }
-
-                        schema = await guildCommandsSchema.findOne({
-                            guildID: guildID,
-                        })
-                        let newStaffRole = schema.staffRole;
-                        newStaffRole = newStaffRole.replaceAll('<', '');
-                        newStaffRole = newStaffRole.replaceAll('@', '');
-                        newStaffRole = newStaffRole.replaceAll('&', '');
-                        newStaffRole = newStaffRole.replaceAll('>', '');
-                        schema.staffRole = newStaffRole
-                        await schema.save()
 
                         //Perms for banned channel
                         const results2 = await guildCommandsSchema.findOne({
@@ -223,7 +190,7 @@ module.exports = {
                 }
                 return;
             }
-            await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... please contact me: Sergetec#6803 🤔**' })
             console.log(err)
