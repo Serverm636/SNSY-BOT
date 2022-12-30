@@ -56,6 +56,14 @@ module.exports = {
                 name: 'TICKET UNBAN',
                 value: `Generates a new unban ticket`
             })
+            .addFields({
+                name: 'DELETE',
+                value: `Delete the id of an action from the database`
+            })
+            .addFields({
+                name: 'EDIT',
+                value: `Edit the reason of an action`
+            })
             .setFooter({
                 text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
             })
