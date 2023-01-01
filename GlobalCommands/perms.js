@@ -110,7 +110,7 @@ module.exports = {
                 let schema
                 const subCommand = interaction.options.getSubcommand()
                 if (subCommand === 'list') {
-                    let rolesSoftBan = 'not set', rolesSoftUnban = 'not set', rolesMute = 'not set', rolesUnmute = 'not set', rolesKick = 'not set', rolesHist = 'not set', rolesPurge = 'not set'
+                    let rolesSoftBan = 'not set', rolesSoftUnban = 'not set', rolesMute = 'not set', rolesUnmute = 'not set', rolesKick = 'not set', rolesHist = 'not set', rolesPurge = 'not set', rolesEdit = 'not set'
                     schema = await guildCommandsSchema.findOne({
                         guildID: guildID,
                     })
@@ -205,6 +205,19 @@ module.exports = {
                         }
                     }
 
+                    if (schema.staffRole) {
+                        rolesEdit = schema.staffRole.split(' ')
+                        for (let i = 0; i < rolesEdit.length; ++i) {
+                            let role = interaction.guild.roles.cache.find(r => r.id === rolesEdit[i])
+                            if (role) {
+                                rolesEdit[i] = " " + role.name
+                            }
+                            else {
+                                rolesEdit[i] = " " + "deleted-role"
+                            }
+                        }
+                    }
+
                     const message = new MessageEmbed()
                         .setTitle(`Perms list for ${interaction.guild.name}`)
                         .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
@@ -236,6 +249,10 @@ module.exports = {
                         .addFields({
                             name: 'Purge:',
                             value: `${rolesPurge}`,
+                        })
+                        .addFields({
+                            name: 'Edit:',
+                            value: `${rolesEdit}`,
                         })
                     return await interaction.reply({ embeds: [message] })
                 }

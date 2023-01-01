@@ -26,12 +26,16 @@ module.exports = {
             const result = await guildCommandsSchema.findOne({
                 guildID: guildId,
             })
+            let ok = false
             if (!result.staffRole) {
                 return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
             }
             const staffRole = result.staffRole
-            if (!interaction.member.roles.cache.some(r => r.id === staffRole)) {
-                return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            if (interaction.member.roles.cache.some(r => r.id === staffRole) || interaction.member.permissions.has('ADMINISTRATOR')) {
+                ok = true
+            }
+            if (!ok) {
+                return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
             }
             let actionID = interaction.options.getString('id')
             const query = {
@@ -54,9 +58,9 @@ module.exports = {
                 found = true
             }
             if (found) {
-                return await interaction.reply({ content: `Reason edited. New reason \`${newReason}\`` })
+                return await interaction.reply({ content: `✅ Reason edited. New reason \`${newReason}\`` })
             }
-            return await interaction.reply({ contetn: `ID not found.` })
+            return await interaction.reply({ content: `❌ ID not found.` })
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... please contact me: Sergetec#6803 🤔**' })
             console.log(err)
