@@ -139,13 +139,9 @@ module.exports = {
                         await arhiva.save();
 
                         //#SANCTIUNI
-                        let date = new Date()
                         const mesaj = new MessageEmbed()
                             .setTitle('BAN')
                             .setColor('RED')
-                            .setFooter({
-                                text: `${date.toLocaleDateString()}`
-                            })
                             .addFields({
                                 name: 'ID',
                                 value: `${memberTarget.id}`,
@@ -176,6 +172,7 @@ module.exports = {
                                 value: `${banReason}`,
                                 inline: true
                             })
+                            .setTimestamp(Date.now())
                         return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                     }
                 }
@@ -236,9 +233,6 @@ module.exports = {
                         const mesaj = new MessageEmbed()
                             .setTitle('UNBAN')
                             .setColor('GREEN')
-                            .setFooter({
-                                text: `${date.toLocaleDateString()}`
-                            })
                             .addFields({
                                 name: 'ID',
                                 value: `${memberTarget.id}`,
@@ -269,6 +263,7 @@ module.exports = {
                                 value: `${unbanReason}`,
                                 inline: true
                             })
+                            .setTimestamp(Date.now())
                             return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                     }
                 }

@@ -9,15 +9,15 @@ module.exports = {
     name: 'ready',
     description: 'on startup | expired punishments',
     on: true,
-    async execute (client, interaction) {
-        console.log('SNSY Bot online!');
+    async execute (client) {
+        console.log('SNSY Bot online!')
 
         await mongoose.connect(mongoPath, {
             keepAlive: true
         }).then(() => {
             console.log('Connected to the database!')
         }).catch((err) => {
-            console.log(err);
+            console.log(err)
         });
         let Guilds = client.guilds.cache.map(guild => guild.id)
         let number = 0
@@ -54,7 +54,6 @@ module.exports = {
                     await punishmentSchema.deleteMany(query)
 
                     try {
-                        let date = new Date()
                         const memberTarget = await guild.members.fetch(userID)
                         if (!memberTarget) {
                             return
@@ -64,9 +63,6 @@ module.exports = {
                         const message = new MessageEmbed()
                             .setTitle('UNMUTE')
                             .setColor('GREEN')
-                            .setFooter({
-                                text: `${date.toLocaleString()}`
-                            })
                             .addFields({
                                 name: 'ID',
                                 value: `${memberTarget.id}`,
@@ -87,7 +83,9 @@ module.exports = {
                                 value: 'Mute expired',
                                 inline: true,
                             })
-                        await client.channels.cache.get(channel).send({embeds: [message]})
+                            .setTimestamp(Date.now())
+
+                        await client.channels.cache.get(channel).send({ embeds: [message] })
                     } catch (err) {
                         console.log(err)
                     }
@@ -120,7 +118,6 @@ module.exports = {
                         await punishmentSchema.deleteMany(query)
 
                         try {
-                            let date = new Date()
                             const memberTarget = await guild.members.fetch(result.userID)
                             if (!memberTarget) {
                                 continue
@@ -130,9 +127,6 @@ module.exports = {
                             const message = new MessageEmbed()
                                 .setTitle('UNMUTE')
                                 .setColor('GREEN')
-                                .setFooter({
-                                    text: `${date.toLocaleDateString()}`
-                                })
                                 .addFields({
                                     name: 'ID',
                                     value: `${memberTarget.id}`,
@@ -153,13 +147,15 @@ module.exports = {
                                     value: 'Mute expired',
                                     inline: true,
                                 })
+                                .setTimestamp(Date.now())
+
                             await client.channels.cache.get(channel).send({ embeds: [message] })
                         } catch (err) {
                             console.log(err)
                         }
                     }
                 }
-                setTimeout(check, 1000 * 60)
+                setTimeout(check, 1000 * 30)
             }
             await check()
         }

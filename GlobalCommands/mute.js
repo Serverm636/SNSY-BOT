@@ -65,7 +65,7 @@ module.exports = {
 
                     let memberTarget = interaction.guild.members.cache.get(user.id);
                     if (memberTarget.roles.cache.some(r => roles.includes(r.id))){
-                        return await interaction.reply('**CAN\'T MUTE THAT MEMBER**');
+                        return await interaction.reply('**CAN\'T MUTE THAT MEMBER**')
                     }
                     const result = await punishmentSchema.findOne({
                         guilID: guildId,
@@ -75,24 +75,26 @@ module.exports = {
                     if (result) {
                         return await interaction.reply(`<@${user.id}> is already muted.`)
                     }
-                    let time = interaction.options.getString('duration');
-                    let muteReason = interaction.options.getString('reason');
+                    let time = interaction.options.getString('duration')
+                    let muteReason = interaction.options.getString('reason')
                     if (!containsNumber(time)) {
-                        return await interaction.reply('Invalid format');
+                        return await interaction.reply('Invalid format')
                     }
                     if (containsWhitespace(time)) {
-                        return await interaction.reply('Invalid format');
+                        return await interaction.reply('Invalid format')
                     }
                     let split = time.match(/\d+|\D+/g)
                     let time2 = parseInt(split[0])
-                    let type = split[1].toLowerCase();
-                    if (type === 'h'){
-                        time2 *= 60;
+                    //TODO: daca e nr nu merge toLowerCase()
+                    // let type = split[1].toLowerCase();
+                    let type = split[1]
+                    if (type === 'h' || type === 'H' || type === 'hour' || type === 'HOUR') {
+                        time2 *= 60
                     }
-                    else if (type === 'd') {
+                    else if (type === 'd' || type === 'D' || type === 'days' || type === 'DAYS') {
                         time2 *= 60 * 24
                     }
-                    else if (type !== 'm') {
+                    else if (type !== 'm' || type !== 'M' || type !== 'minutes' || type !== 'MINUTES') {
                         return await interaction.reply('Invalid format.');
                     }
 
@@ -117,7 +119,7 @@ module.exports = {
                         expires: expires1,
                         type: 'mute',
                     })
-                    schema.save();
+                    await schema.save();
 
                     //ARHIVA
                     let arhiva = await archiveSchema.create({
@@ -127,16 +129,12 @@ module.exports = {
                         reason: muteReason,
                         type: 'mute',
                     })
-                    arhiva.save();
+                    await arhiva.save();
                     
                     //#SANCTIUNI
-                    let date = new Date()
                     const mesaj = new MessageEmbed()
                         .setTitle('MUTE')
                         .setColor('RED')
-                        .setFooter({
-                            text: `${date.toLocaleDateString()}`
-                        })
                         .addFields({
                             name: 'ID',
                             value: `${memberTarget.id}`,
@@ -172,6 +170,7 @@ module.exports = {
                             value: `${time}`,
                             inline: true
                         })
+                        .setTimestamp(Date.now())
                         return client.channels.cache.get(channel).send({ embeds: [mesaj] });
                 }
             }

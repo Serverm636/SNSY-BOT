@@ -45,7 +45,7 @@ module.exports = {
                 if (!schema.notificationsChannel) {
                     return await interaction.reply({content: '**❌ You have not set up the notifications channel for staff. Please use `/set notifications-channel`**'})
                 }
-                client.channels.cache.get(channel).send({embeds: [mesaj], components: [row]})
+                client.channels.cache.get(channel).send({ embeds: [mesaj], components: [row] })
                 return await interaction.reply({content: '✅ Generated'})
             }
             return await interaction.reply({content: '**❌ You are not authorized to use this**'})

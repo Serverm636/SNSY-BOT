@@ -64,9 +64,7 @@ module.exports = {
                 name: 'EDIT',
                 value: `Edit the reason of an action`
             })
-            .setFooter({
-                text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
-            })
+            .setTimestamp(Date.now())
         return await interaction.reply({ embeds: [message] });
     }
 }

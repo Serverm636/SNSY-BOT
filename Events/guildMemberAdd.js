@@ -23,25 +23,8 @@ module.exports = {
             userID: member.id,
             guildID: guildId,
         })
-        if (results.length === 0){
-            try {
-                if (guildId === '999749692239904929') { //special server
-                    const message = new MessageEmbed()
-                        .setColor("RED")
-                        .setAuthor({
-                            name: member.displayName,
-                            iconURL: member.displayAvatarURL({dynamic: true, size: 128}),
-                        })
-                        .setThumbnail(member.displayAvatarURL({dynamic: true, size: 128}))
-                        .setDescription(
-                            `<a:6417redcrown:993567797835735050> ◊ W E L C O M E ◊ <a:6417redcrown:993567797835735050>\n\n• [**Rules**](https://ptb.discord.com/channels/999749692239904929/999749693250744421) 📜\n• [**Self Roles**](https://ptb.discord.com/channels/999749692239904929/999749694102196260) 🎭\n• [**Roles Info**](https://ptb.discord.com/channels/999749692239904929/1001591448677920819) 📩\n\n **© Heaven Knights. All rights reserved.**`
-                        )
-                    await member.send({embeds: [message]})
-                }
-                return
-            } catch(err) {
-                console.log('Cannot send PM to user')
-            }
+        if (results.length === 0) {
+            return;
         }
         for (const result of results) {
             if (result.type === 'ban') {

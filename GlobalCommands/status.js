@@ -13,7 +13,7 @@ module.exports = {
             .setDescription(`**CLIENT**: \`🟢 ONLINE\`\n**PING**: \`${ping}\`\n**UPTIME**: <t:${Math.floor(parseInt(client.readyAt / 1000))}:R>\n\n**DATABASE**: \`${switchTo(connection.readyState)}\``)
             return await interaction.reply({ embeds: [mesaj] })
         }
-        await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+        await interaction.reply({ content: '**❌ You are not authorized to use this**', ephemeral: true })
     }
 }
 

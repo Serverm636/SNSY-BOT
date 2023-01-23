@@ -109,9 +109,8 @@ module.exports = {
                             name: `HISTORY for \`${memberTarget.nickname || targetedMember.tag.substring(0, targetedMember.tag.length - 5)}\``,
                             value: 'clean'
                         })
-                        .setFooter({
-                            text: `${new Date(interaction.createdTimestamp).toLocaleDateString()}`
-                        })
+                        .setTimestamp(Date.now())
+
                         return await interaction.reply({ embeds: [mesaj] });
                     }
                     const getRow = (id) => {

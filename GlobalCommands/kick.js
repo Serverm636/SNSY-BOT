@@ -78,7 +78,7 @@ module.exports = {
                     reason: kickReason,
                     type: 'kick',
                 })
-                arhiva.save();
+                await arhiva.save();
 
                 //#SANCTIUNI
                 let date = new Date()
@@ -118,6 +118,7 @@ module.exports = {
                         value: `${kickReason}`,
                         inline: true
                     })
+                    .setTimestamp(Date.now())
                     return client.channels.cache.get(channel).send({ embeds: [mesaj] });
             }
             return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
