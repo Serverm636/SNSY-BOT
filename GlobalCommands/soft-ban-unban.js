@@ -55,7 +55,7 @@ module.exports = {
                 guildID: guildId
             })
             if (!result2.bannedRole) {
-                return await interaction.reply({ content: '**❌ The banned role have not been set up. Please use `/set banned-role`**' });
+                return await interaction.reply({ content: '**❌ The banned role have not been set up. Please use `/set banned-role`**' })
             }
             const banRole = result2.bannedRole
 
@@ -63,7 +63,7 @@ module.exports = {
                 guildID: guildId
             })
             if (!result3.warnsChannel) {
-                return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' });
+                return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' })
             }
             const channel = result3.warnsChannel
 
@@ -71,9 +71,83 @@ module.exports = {
                 guildID: guildId
             })
             if (!result4.mainRole) {
-                return await interaction.reply({ content: '**❌ The main role have not been set up. Please use `/set main-role`**' });
+                return await interaction.reply({ content: '**❌ The main role have not been set up. Please use `/set main-role`**' })
             }
             let mainRoles = result4.mainRole.split(' ')
+
+            //Test for role existance
+
+            //Banned role
+            let ok = interaction.guild.roles.cache.find(r => r.id === banRole)
+            if (typeof ok === undefined) {
+                let schema = await guildCommandsSchema.findOne({
+                    guildID: guildId
+                })
+                schema.bannedRole = ''
+                await schema.save()
+                return await interaction.reply({ content: '**❌ The banned role have not been set up. Please use `/set banned-role`**' })
+            }
+
+            //Warns channel
+            ok = interaction.guild.channels.cache.find(c => c.id === channel)
+            if (typeof ok === undefined) {
+                let schema = await guildCommandsSchema.findOne({
+                    guildID: guildId
+                })
+                schema.warnsChannel = ''
+                await schema.save()
+                return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' })
+            }
+
+            //Main roles
+            if (isIterable(mainRoles)) {
+                let okRoles = ''
+                let first = false
+                for (const role of mainRoles) {
+                    if (role === '') {
+                        continue
+                    }
+                    ok = interaction.guild.roles.cache.find(r => r.id === role)
+                    if (typeof ok !== undefined) {
+                        if (!first) {
+                            okRoles = role + ' '
+                            first = true
+                        }
+                        else {
+                            okRoles += role + ' '
+                        }
+                    }
+                }
+                if (okRoles === '') {
+                    let schema = await guildCommandsSchema.findOne({
+                        guildID: guildId
+                    })
+                    schema.mainRole = ''
+                    await schema.save()
+                    return await interaction.reply({ content: '**❌ The main role have not been set up. Please use `/set main-role`**' })
+                }
+                else {
+                    let schema = await guildCommandsSchema.findOne({
+                        guildID: guildId
+                    })
+                    schema.mainRole = okRoles
+                    await schema.save()
+                }
+                mainRoles = okRoles.split(' ')
+                mainRoles = mainRoles.filter(elm => elm)
+            }
+            else {
+                ok = interaction.guild.roles.cache.find(r => r.id === mainRoles)
+                if (typeof ok === undefined) {
+                    let schema = await guildCommandsSchema.findOne({
+                        guildID: guildId
+                    })
+                    schema.mainRole = ''
+                    await schema.save()
+                    return await interaction.reply({content: '**❌ The main role have not been set up. Please use `/set main-role`**'})
+                }
+            }
+
 
             if (subCommand === 'ban') {
                 let ok = false
@@ -106,7 +180,6 @@ module.exports = {
                             return await interaction.reply({ content: `❌ <@${user.id}> is already banned.` })
                         }
                         let banReason = interaction.options.getString('reason');
-
                         await memberTarget.roles.remove(memberTarget.roles.cache);
                         await memberTarget.roles.add(banRole);
 
@@ -178,7 +251,7 @@ module.exports = {
                 }
                 await interaction.reply({ content: '**❌ You are not authorized to use this**' });
             }
-            else {
+            else if (subCommand === 'unban') {
                 let ok = false
                 const result = await guildCommandsSchema.findOne({
                     guildID: guildId
@@ -195,7 +268,7 @@ module.exports = {
                     const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
                     const bannedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
                     if (user) {
-                        let memberTarget = interaction.guild.members.cache.get(user.id);
+                        let memberTarget = interaction.guild.members.cache.get(user.id)
                         let unbanReason = interaction.options.getString('reason')
                         if (isIterable(mainRoles)) {
                             for (const role of mainRoles) {
@@ -229,7 +302,6 @@ module.exports = {
                         await arhiva.save();
         
                         //#SANCTIUNI
-                        let date = new Date()
                         const mesaj = new MessageEmbed()
                             .setTitle('UNBAN')
                             .setColor('GREEN')

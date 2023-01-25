@@ -29,12 +29,12 @@ module.exports = {
                 guildID: guildId
             })
             if (!result.rolesUnmute) {
-                return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+                return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
             }
-            const roles = result.rolesUnmute.split(" ")
+            const roles = result.rolesUnmute.split(' ')
 
             if (interaction.member.roles.cache.some(r => roles.includes(r.id))) {
-                ok = true;
+                ok = true
             }
             if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')){
                 const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
@@ -55,6 +55,30 @@ module.exports = {
                         return await interaction.reply({ content: '**❌ The muted role have not been set up. Please use `/set muted-role`**' });
                     }
                     const muteRole = result3.mutedRole
+
+                    //Test for existance
+
+                    //Muted role
+                    let ok = interaction.guild.roles.cache.find(r => r.id === muteRole)
+                    if (typeof ok === undefined) {
+                        let schema = await guildCommandsSchema.findOne({
+                            guildID: guildId
+                        })
+                        schema.mutedRole = ''
+                        await schema.save()
+                        return await interaction.reply({ content: '**❌ The muted role have not been set up. Please use `/set muted-role`**' })
+                    }
+
+                    //Warns channel
+                    ok = interaction.guild.channels.cache.find(c => c.id === channel)
+                    if (typeof ok === undefined) {
+                        let schema = await guildCommandsSchema.findOne({
+                            guildID: guildId
+                        })
+                        schema.warnsChannel = ''
+                        await schema.save()
+                        return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' })
+                    }
 
                     let memberTarget = interaction.guild.members.cache.get(user.id);
                     let unmuteReason = interaction.options.getString('reason');
