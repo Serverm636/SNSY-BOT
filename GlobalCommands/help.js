@@ -1,12 +1,11 @@
-const { Client, CommandInteraction } = require('discord.js')
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'help',
-    description: 'displays help about the commands of the bot',
+    description: 'Displays help about the commands of the bot',
     async execute(client, interaction) {
-        const message = new MessageEmbed()
-            .setColor('BLURPLE')
+        const message = new EmbedBuilder()
+            .setColor('Blurple')
             .setTitle('ℹ️ HELP')
             .addFields({
                 name: 'HELP',
@@ -65,6 +64,7 @@ module.exports = {
                 value: `Edit the reason of an action`
             })
             .setTimestamp(Date.now())
-        return await interaction.reply({ embeds: [message] });
+
+        return await interaction.reply({ embeds: [message] })
     }
 }

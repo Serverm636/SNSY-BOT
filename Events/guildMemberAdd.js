@@ -1,5 +1,5 @@
-const { MessageEmbed } = require('discord.js');
-const punishmentSchema = require('../Models/punishment-schema');
+const { ActivityType } = require('discord.js')
+const punishmentSchema = require('../Models/punishment-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
         }
         client.user.setActivity({
             name: `${number} users`,
-            type: "WATCHING"
+            type: ActivityType.Watching,
         })
 
         const guildId = member.guild.id;
@@ -24,11 +24,10 @@ module.exports = {
             guildID: guildId,
         })
         if (results.length === 0) {
-            return;
+            return
         }
         for (const result of results) {
             if (result.type === 'ban') {
-    
                 const result2 = await guildCommandsSchema.findOne({
                     guildID: guildId
                 })
@@ -36,7 +35,6 @@ module.exports = {
                     return
                 }
                 const banRole = result2.bannedRole
-    
                 member.roles.add(banRole)
             }
             if (result.type === 'mute') {
@@ -47,7 +45,6 @@ module.exports = {
                     return
                 }
                 const muteRole = result3.mutedRole
-    
                 member.roles.add(muteRole)
             }
         }

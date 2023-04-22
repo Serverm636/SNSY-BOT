@@ -1,8 +1,9 @@
 const guildCommandsSchema = require('../Models/guildCommands-schema')
+const { ChannelType } = require('discord.js')
 
 module.exports = {
     name: 'channelCreate',
-    description: 'when a channel is created',
+    description: 'When a channel is created',
     on: true,
     async execute(channel) {
         try {
@@ -14,18 +15,33 @@ module.exports = {
                 return
             }
             let muted = result.mutedRole
-            if (channel.type === 'GUILD_TEXT') {
-                await channel.permissionOverwrites.create(muted, {
-                    SEND_MESSAGES: false,
+
+            //Test for existance
+
+            //Muted role
+            let ok = channel.guild.roles.cache.find(r => r.id === muted)
+            if (typeof ok === undefined) {
+                let schema = await guildCommandsSchema.findOne({
+                    guildID: guildId
                 })
-            } else {
+                schema.mutedRole = ''
+                await schema.save()
+                return
+            }
+
+            if (channel.type === ChannelType.GuildText) {
                 await channel.permissionOverwrites.create(muted, {
-                    SPEAK: false,
+                    SendMessages: false,
+                })
+            }
+            else {
+                await channel.permissionOverwrites.create(muted, {
+                    Speak: false,
                 })
             }
         } catch (err) {
             console.log(err)
-            console.log(`Probably owner has unchecked the administrator perm or role doesn\'t exist`)
+            console.log(`Probably owner has unchecked the administrator perm`)
         }
     }
 }

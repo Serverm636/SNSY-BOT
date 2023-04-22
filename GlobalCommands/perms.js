@@ -1,6 +1,5 @@
-const { Client, CommandInteraction } = require('discord.js')
+const { EmbedBuilder, ApplicationCommandOptionType, PermissionsBitField } = require('discord.js');
 const guildCommandsSchema = require('../Models/guildCommands-schema')
-const { MessageEmbed } = require('discord.js')
 
 module.exports = {
     name: 'perms',
@@ -8,96 +7,96 @@ module.exports = {
     options: [
         {
             name: 'list',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'Shows the roles that have access to a specific command',
         },
         {
             name: 'soft-ban',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'Soft-bans members',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to soft-ban other members',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'soft-unban',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'Soft-unbans members',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to soft-unban other members',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'mute',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'Mutes members',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to mute other members',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'unmute',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'Unmutes members',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to unmute other members',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'kick',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'kick members',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to kick other members',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'hist',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'punishment history',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to other members history',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'purge',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'mass deletes messages',
             options: [
                 {
                     name: 'roles',
                     description: 'Roles to have acces to mass delete messages',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
@@ -105,7 +104,7 @@ module.exports = {
     ],
     async execute(client, interaction) {
         try {
-            if (interaction.member.permissions.has('ADMINISTRATOR')) {
+            if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 const guildID = interaction.guild.id;
                 let schema
                 const subCommand = interaction.options.getSubcommand()
@@ -218,10 +217,10 @@ module.exports = {
                         }
                     }
 
-                    const message = new MessageEmbed()
+                    const message = new EmbedBuilder()
                         .setTitle(`Perms list for ${interaction.guild.name}`)
                         .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-                        .setColor('BLUE')
+                        .setColor('Blue')
                         .addFields({
                             name: 'Soft-ban:',
                             value: `${rolesSoftBan}`,
@@ -256,7 +255,7 @@ module.exports = {
                         })
                     return await interaction.reply({ embeds: [message] })
                 }
-                let roles = interaction.options.getString('roles');
+                let roles = interaction.options.getString('roles')
                 const rolesName = roles;
                 roles = roles.replaceAll('<', '');
                 roles = roles.replaceAll('@', '');
@@ -272,7 +271,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.rolesBan = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -280,7 +279,7 @@ module.exports = {
                                 guildID: guildID,
                                 rolesBan: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
@@ -293,7 +292,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.rolesUnban = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -301,7 +300,7 @@ module.exports = {
                                 guildID: guildID,
                                 rolesUnban: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
@@ -314,7 +313,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.rolesMute = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -322,20 +321,20 @@ module.exports = {
                                 guildID: guildID,
                                 rolesMute: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
                     case 'unmute':
                         await interaction.reply(`✅ Roles: ${rolesName} have been authorized for ${subCommand}.`)
-                        
+
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
                             schema.rolesUnmute = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -343,20 +342,20 @@ module.exports = {
                                 guildID: guildID,
                                 rolesUnmute: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
                     case 'kick':
                         await interaction.reply(`✅ Roles: ${rolesName} have been authorized for ${subCommand}.`)
-                        
+
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
                             schema.rolesKick = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -364,20 +363,20 @@ module.exports = {
                                 guildID: guildID,
                                 rolesKick: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
                     case 'hist':
                         await interaction.reply(`✅ Roles: ${rolesName} have been authorized for ${subCommand}.`)
-                        
+
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
                             schema.rolesHist = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -385,20 +384,20 @@ module.exports = {
                                 guildID: guildID,
                                 rolesHist: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
-                        
+
                         break;
                     case 'purge':
                         await interaction.reply(`✅ Roles: ${rolesName} have been authorized for ${subCommand}.`)
-                        
+
                         //Check for the same guild -> update
                         schema = await guildCommandsSchema.findOne({
                             guildID: guildID,
                         })
                         if (schema) {
                             schema.rolesPurge = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -406,14 +405,14 @@ module.exports = {
                                 guildID: guildID,
                                 rolesPurge: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
-                        
-                        break;
+
+                        break
                 }
-                return;
+                return
             }
-            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... please contact me: Sergetec#6803 🤔**' })
             console.log(err)

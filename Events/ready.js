@@ -3,7 +3,7 @@ const mongoPath = process.env.MONGO_URI;
 const punishmentSchema = require('../Models/punishment-schema');
 const archiveSchema = require('../Models/archive-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, ActivityType } = require('discord.js');
 
 module.exports = {
     name: 'ready',
@@ -60,7 +60,7 @@ module.exports = {
                         }
                         memberTarget.roles.remove(muteRole)
 
-                        const message = new MessageEmbed()
+                        const message = new EmbedBuilder()
                             .setTitle('UNMUTE')
                             .setColor('GREEN')
                             .addFields({
@@ -124,7 +124,7 @@ module.exports = {
                             }
                             memberTarget.roles.remove(muteRole)
 
-                            const message = new MessageEmbed()
+                            const message = new EmbedBuilder()
                                 .setTitle('UNMUTE')
                                 .setColor('GREEN')
                                 .addFields({
@@ -161,16 +161,16 @@ module.exports = {
         }
         client.user.setActivity({
             name: `${number} users`,
-            type: "WATCHING"
+            type: ActivityType.Watching,
         })
-        client.user.setStatus('online');
+        client.user.setStatus('online')
     }
 }
 
 function isIterable(obj) {
     // checks for null and undefined
     if (obj == null) {
-      return false
+        return false
     }
     return typeof obj[Symbol.iterator] === 'function'
 }

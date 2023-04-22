@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, InteractionType } = require('discord.js')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
@@ -17,20 +17,20 @@ module.exports = {
                 guildID: guildId
             })
             if (!result.bannedChannel) {
-                return;
+                return
             }
             if (!result.bannedCategory) {
-                return;
+                return
             }
             const category = result.bannedCategory
 
             if (!result.notificationsChannel) {
-                return;
+                return
             }
             const canalStaffNotif = result.notificationsChannel
 
             if (!result.staffRole) {
-                return;
+                return
             }
             const staff = result.staffRole.split(' ')
             if (interaction.customId === "open-ticket") {
@@ -39,40 +39,41 @@ module.exports = {
                 let user = interaction.member.id;
                 let nameOfChannel = "unban-" + user;
                 if ((interaction.guild.channels.cache.find(c => c.name === nameOfChannel))) {
-                    return;
+                    return
                 }
-                await interaction.guild.channels.create(`unban-${user}}`, {
+                await interaction.guild.channels.create({
+                    name: `unban-${user}}`,
                     parent: category,
                     permissionOverwrites: [
                         {
                             id: user,
-                            allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+                            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory']
                         },
                         {
                             id: guildId,
-                            deny: ['VIEW_CHANNEL']
+                            deny: ['ViewChannel']
                         }
                     ]
                 }).then(async channel => {
                     for (const role of staff){
                         await channel.permissionOverwrites.edit(role, {
-                            VIEW_CHANNEL: true,
-                            SEND_MESSAGES: true,
-                            READ_MESSAGE_HISTORY: true,
-                            MANAGE_MESSAGES: false,
+                            ViewChannel: true,
+                            SendMessages: true,
+                            ReadMessageHistory: true,
+                            ManageMessages: false,
                         })
                     }
-                    let row = new MessageActionRow()
-                        .addComponents(new MessageButton()
+                    let row = new ActionRowBuilder()
+                        .addComponents(new ButtonBuilder()
                             .setCustomId("close-ticket")
                             .setLabel("Close the ticket")
-                            .setStyle("DANGER")
+                            .setStyle(ButtonStyle.Danger)
                         );
-                    const mesaj = new MessageEmbed()
-                    .setTitle('Unban ticket')
-                    .setDescription('A staff member will take over your ticket as soon as possible.')
-                    .setColor('RED')
-                    await channel.send({content: `<@${user}> Here is your unban ticket`, embeds: [mesaj], components: [row]});
+                    const mesaj = new EmbedBuilder()
+                        .setTitle('Unban ticket')
+                        .setDescription('A staff member will take over your ticket as soon as possible.')
+                        .setColor('Red')
+                    await channel.send({ content: `<@${user}> Here is your unban ticket`, embeds: [mesaj], components: [row] })
                     await client.channels.cache.get(canalStaffNotif).send(`<@&${staff}> <@${user}> **has opened an unban request ⇒** <#${channel.id}>`)
                 })
             }
@@ -87,7 +88,7 @@ module.exports = {
         SLASH COMMANDS - HANDLER
 
         */
-        if (interaction.isCommand()) {
+        if (interaction.type === InteractionType.ApplicationCommand) {
             // await interaction.deferReply({ ephemeral: false }).catch(() => {});
 
             const command = client.commands.get(interaction.commandName)

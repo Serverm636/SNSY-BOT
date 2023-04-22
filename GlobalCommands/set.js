@@ -1,4 +1,4 @@
-const { Client, CommandInteraction } = require('discord.js')
+const { ApplicationCommandOptionType, PermissionsBitField } = require('discord.js');
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
@@ -7,52 +7,52 @@ module.exports = {
     options: [
         {
             name: 'member-roles',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'The member roles',
             options: [
                 {
                     name: 'roles',
                     description: 'The member role or roles if there are more default roles. (like separator roles)',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                 },
             ],
         },
         {
             name: 'warns-channel',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'The warns channel to display warns',
             options: [
                 {
                     name: 'channel',
                     description: 'The warns channel',
-                    type: 'CHANNEL',
+                    type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
             ],
         },
         {
             name: 'notifications-channel',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'The banned-notifications channel only for staff members',
             options: [
                 {
                     name: 'channel',
                     description: 'The banned-notification channel only for staff members',
-                    type: 'CHANNEL',
+                    type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
             ],
         },
         {
             name: 'staff-role',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'The staff-role to be tagged',
             options: [
                 {
                     name: 'role',
                     description: 'The staff-role to be tagged',
-                    type: 'ROLE',
+                    type: ApplicationCommandOptionType.Role,
                     required: true,
                 },
             ],
@@ -60,7 +60,7 @@ module.exports = {
     ],
     async execute(client, interaction) {
         try {
-            if (interaction.member.permissions.has('ADMINISTRATOR')) {
+            if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 const guildID = interaction.guild.id;
                 let schema
                 const subCommand = interaction.options.getSubcommand()
@@ -81,7 +81,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.mainRole = roles
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -89,7 +89,7 @@ module.exports = {
                                 guildID: guildID,
                                 mainRole: roles,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
@@ -104,7 +104,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.warnsChannel = newWarnsChannel
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -112,7 +112,7 @@ module.exports = {
                                 guildID: guildID,
                                 warnsChannel: newWarnsChannel,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
@@ -127,7 +127,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.notificationsChannel = newNotificationsChannel
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -135,7 +135,7 @@ module.exports = {
                                 guildID: guildID,
                                 notificationsChannel: newNotificationsChannel,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         break;
@@ -150,7 +150,7 @@ module.exports = {
                         })
                         if (schema) {
                             schema.staffRole = newStaffRole
-                            await schema.save();
+                            await schema.save()
                         }
                         else {
                             //DATABASE
@@ -158,7 +158,7 @@ module.exports = {
                                 guildID: guildID,
                                 staffRole: newStaffRole,
                             })
-                            await schema.save();
+                            await schema.save()
                         }
 
                         //Perms for banned channel
@@ -179,18 +179,18 @@ module.exports = {
                         const channel = interaction.guild.channels.cache.get(results2.bannedChannel)
                         for (const role of staff) {
                             await channel.permissionOverwrites.edit(role, {
-                                VIEW_CHANNEL: true,
-                                SEND_MESSAGES: false,
-                                READ_MESSAGE_HISTORY: true,
-                                MANAGE_MESSAGES: false,
-                            });
+                                ViewChannel: true,
+                                SendMessages: false,
+                                ReadMessageHistory: true,
+                                ManagerMessages: false,
+                            })
                         }
 
-                        break;
+                        break
                 }
-                return;
+                return
             }
-            return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... please contact me: Sergetec#6803 🤔**' })
             console.log(err)

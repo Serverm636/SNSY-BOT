@@ -1,17 +1,16 @@
-const { Client, CommandInteraction } = require('discord.js')
-const { MessageEmbed } = require('discord.js')
+const { EmbedBuilder, PermissionsBitField } = require('discord.js')
 const { connection } = require('mongoose')
 
 module.exports = {
     name: 'status',
-    description: 'displays status of the bot',
+    description: 'Displays status of the bot',
     async execute(client, interaction) {
-        if (interaction.member.permissions.has('ADMINISTRATOR')) {
+        if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             const ping = (interaction.createdTimestamp - Date.now()) * (-1)
-            const mesaj = new MessageEmbed()
-            .setColor('RED')
-            .setDescription(`**CLIENT**: \`🟢 ONLINE\`\n**PING**: \`${ping}\`\n**UPTIME**: <t:${Math.floor(parseInt(client.readyAt / 1000))}:R>\n\n**DATABASE**: \`${switchTo(connection.readyState)}\``)
-            return await interaction.reply({ embeds: [mesaj] })
+            const messsage = new EmbedBuilder()
+                .setColor('Red')
+                .setDescription(`**CLIENT**: \`🟢 ONLINE\`\n**PING**: \`${ping}\`\n**UPTIME**: <t:${Math.floor(parseInt(client.readyAt / 1000))}:R>\n\n**DATABASE**: \`${switchTo(connection.readyState)}\``)
+            return await interaction.reply({ embeds: [messsage] })
         }
         await interaction.reply({ content: '**❌ You are not authorized to use this**', ephemeral: true })
     }

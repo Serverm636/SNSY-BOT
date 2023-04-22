@@ -1,22 +1,21 @@
-const { Client, CommandInteraction } = require('discord.js')
-const { MessageEmbed } = require('discord.js');
-const punishmentSchema = require('../Models/punishment-schema');
+const { EmbedBuilder, ApplicationCommandOptionType, PermissionsBitField } = require('discord.js')
+const punishmentSchema = require('../Models/punishment-schema')
 const archiveSchema = require('../Models/archive-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: 'unmute',
-    description: 'unmutes a member',
+    description: 'Unmutes a member',
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user to be unmute',
             required: true,
         },
         {
             name: 'reason',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The reason for the unmute',
             required: true,
         },
@@ -36,15 +35,15 @@ module.exports = {
             if (interaction.member.roles.cache.some(r => roles.includes(r.id))) {
                 ok = true
             }
-            if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')){
-                const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
-                const mutedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
+            if (ok === true || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                const user = interaction.options.getUser('user') //FOLOSIT DOAR LA MEMBERTARGET
+                const mutedMember = interaction.options.getUser('user') //FOLOSIT DOAR LA NICKNAME
                 if (user) {
                     const result2 = await guildCommandsSchema.findOne({
                         guildID: guildId
                     })
                     if (!result2.warnsChannel) {
-                        return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' });
+                        return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' })
                     }
                     const channel = result2.warnsChannel
 
@@ -52,7 +51,7 @@ module.exports = {
                         guildID: guildId
                     })
                     if (!result3.mutedRole) {
-                        return await interaction.reply({ content: '**❌ The muted role have not been set up. Please use `/set muted-role`**' });
+                        return await interaction.reply({ content: '**❌ The muted role have not been set up. Please use `/set muted-role`**' })
                     }
                     const muteRole = result3.mutedRole
 
@@ -80,16 +79,16 @@ module.exports = {
                         return await interaction.reply({ content: '**❌ The warns channel have not been set up. Please use `/set warns-channel`**' })
                     }
 
-                    let memberTarget = interaction.guild.members.cache.get(user.id);
-                    let unmuteReason = interaction.options.getString('reason');
+                    let memberTarget = interaction.guild.members.cache.get(user.id)
+                    let unmuteReason = interaction.options.getString('reason')
 
-                    await memberTarget.roles.remove(muteRole);
+                    await memberTarget.roles.remove(muteRole)
 
-                    await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unmuted` });
+                    await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unmuted` })
                     if (!unmuteReason) {
                         unmuteReason = 'No reason provided'
                     }
-                    
+
                     //DELETING FROM DATABASE
                     const query = {
                         guildID: guildId,
@@ -107,12 +106,12 @@ module.exports = {
                         reason: unmuteReason,
                         type: 'unmute',
                     })
-                    arhiva.save();
+                    await arhiva.save()
 
                     //#SANCTIUNI
-                    const mesaj = new MessageEmbed()
+                    const message = new EmbedBuilder()
                         .setTitle('UNMUTE')
-                        .setColor('GREEN')
+                        .setColor('Green')
                         .addFields({
                             name: 'ID',
                             value: `${memberTarget.id}`,
@@ -145,7 +144,7 @@ module.exports = {
                         })
                         .setTimestamp(Date.now())
 
-                        return await client.channels.cache.get(channel).send({ embeds: [mesaj] })
+                    return await client.channels.cache.get(channel).send({ embeds: [message] })
                 }
             }
             return await interaction.reply({ content: '**❌ You are not authorized to use this**' })

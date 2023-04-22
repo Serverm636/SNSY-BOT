@@ -1,25 +1,30 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, ChannelType, PermissionsBitField, PermissionFlagsBits } = require('discord.js')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: 'guildCreate',
-    description: 'when bot joins a new guild',
+    description: 'When bot joins a new guild',
     on: true,
     async execute(guild) {
         try {
+            if (!guild.available) {
+                console.log("Not available")
+                return
+            }
             let channelToSend = ""
             guild.channels.cache.forEach((channel) => {
-                if (channel.type === 'GUILD_TEXT' && channelToSend === "") {
-                    if (channel.permissionsFor(guild.me).has('SEND_MESSAGES') && channel.permissionsFor(guild.me).has('VIEW_CHANNEL')) {
+                if (channel.type === ChannelType.GuildText && channelToSend === "") {
+                    if (channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.SendMessages) && channel.permissionsFor(guild.members.me).has(PermissionsBitField.Flags.ViewChannel)) {
                         channelToSend = channel
                     }
                 }
             })
-            // channelToSend = guild.channels.cache.find(channel =>  channel.type === 'GUILD_TEXT' && channel.permissionsFor(guild.me).has('SEND_MESSAGES') && channel.permissionsFor(guild.me).has('VIEW_CHANNEL'))
+            // channelToSend = guild.channels.cache.find(channel => channel.type === ChannelType.GuildText && channel.permissionsFor(guild.members.me).has(PermissionsBitFieldBitField.Flags.SendMessages))
             if (!channelToSend) {
-                return;
+                return
             }
-            const message1 = new MessageEmbed()
+
+            const message1 = new EmbedBuilder()
                 .setTitle('SNSY Bot')
                 .setDescription(
                     `👋 **Hi, my name is SNSY and I will help you moderate this community as smoothly as possible.**
@@ -45,21 +50,21 @@ module.exports = {
 
             await channelToSend.send({ embeds: [message1] })
 
-            const message2 = new MessageEmbed()
+            const message2 = new EmbedBuilder()
                 .setTitle('SNSY Bot')
                 .setDescription(
                     `❗ **You will have to either push my role the highest or make the role for bots the highest, so that I will have permission to manage all roles**`
                 )
-                .setColor('RED')
+                .setColor('Red')
                 .setTimestamp(Date.now())
 
             await channelToSend.send({ embeds: [message2] })
             let schema
             await guild.roles.create({
                 name: 'Muted',
-                color: 'DARK_RED',
+                color: 'DarkRed',
             }).then(async (role) => {
-                await role.setPermissions(['READ_MESSAGE_HISTORY', 'CONNECT'])
+                await role.setPermissions([ PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.Connect ])
 
                 //Check for the same guild -> update
                 schema = await guildCommandsSchema.findOne({
@@ -67,14 +72,15 @@ module.exports = {
                 })
                 if (schema) {
                     schema.mutedRole = role
-                    await schema.save();
-                } else {
+                    await schema.save()
+                }
+                else {
                     //DATABASE
                     schema = await guildCommandsSchema.create({
                         guildID: guild.id,
                         mutedRole: role,
                     })
-                    await schema.save();
+                    await schema.save()
                 }
 
                 schema = await guildCommandsSchema.findOne({
@@ -91,12 +97,12 @@ module.exports = {
                 guild.channels.cache.forEach(channel => {
                     if (channel.type === 'GUILD_TEXT') {
                         channel.permissionOverwrites.create(role, {
-                            SEND_MESSAGES: false,
+                            SendMessages: false,
                         })
                     }
                     else {
                         channel.permissionOverwrites.create(role, {
-                            SPEAK: false,
+                            Speak: false,
                         })
                     }
                 })
@@ -104,9 +110,9 @@ module.exports = {
 
             await guild.roles.create({
                 name: 'Banned',
-                color: 'GREY',
+                color: 'Grey',
             }).then(async (role) => {
-                await role.setPermissions(['SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'CONNECT', 'SPEAK'])
+                await role.setPermissions([ PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.Connect, PermissionFlagsBits.Speak ])
 
                 //Check for the same guild -> update
                 schema = await guildCommandsSchema.findOne({
@@ -114,14 +120,15 @@ module.exports = {
                 })
                 if (schema) {
                     schema.bannedRole = role
-                    await schema.save();
-                } else {
+                    await schema.save()
+                }
+                else {
                     //DATABASE
                     schema = await guildCommandsSchema.create({
                         guildID: guild.id,
                         bannedRole: role,
                     })
-                    await schema.save();
+                    await schema.save()
                 }
 
                 schema = await guildCommandsSchema.findOne({
@@ -138,16 +145,17 @@ module.exports = {
             })
 
             let bannedRole = guild.roles.cache.find(role => role.name === 'Banned')
-            const category = await guild.channels.create('BANNED', {
-                type: 'GUILD_CATEGORY',
+            const category = await guild.channels.create({
+                name: 'BANNED',
+                type: ChannelType.GuildCategory,
                 permissionOverwrites: [
                     {
                         id: bannedRole,
-                        deny: ['VIEW_CHANNEL']
+                        deny: ['ViewChannel']
                     },
                     {
                         id: guild.id,
-                        deny: ['VIEW_CHANNEL']
+                        deny: ['ViewChannel']
                     }
                 ]
             })
@@ -157,14 +165,15 @@ module.exports = {
             })
             if (schema) {
                 schema.bannedCategory = category
-                await schema.save();
-            } else {
+                await schema.save()
+            }
+            else {
                 //DATABASE
                 schema = await guildCommandsSchema.create({
                     guildID: guild.id,
                     bannedCategory: category,
                 })
-                await schema.save();
+                await schema.save()
             }
 
             schema = await guildCommandsSchema.findOne({
@@ -177,17 +186,19 @@ module.exports = {
             schema.bannedCategory = newBannedCategory
             await schema.save()
 
-            const channel = await guild.channels.create('banned', {
+            const channel = await guild.channels.create({
+                name: 'banned',
+                type: ChannelType.GuildText,
                 parent: category,
                 permissionOverwrites: [
                     {
                         id: bannedRole,
-                        deny: ['SEND_MESSAGES', 'ADD_REACTIONS'],
-                        allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY']
+                        deny: ['SendMessages', 'AddReactions'],
+                        allow: ['ViewChannel', 'ReadMessageHistory']
                     },
                     {
                         id: guild.id,
-                        deny: ['VIEW_CHANNEL']
+                        deny: ['ViewChannel']
                     }
                 ]
             })
@@ -197,14 +208,15 @@ module.exports = {
             })
             if (schema) {
                 schema.bannedChannel = channel
-                await schema.save();
-            } else {
+                await schema.save()
+            }
+            else {
                 //DATABASE
                 schema = await guildCommandsSchema.create({
                     guildID: guild.id,
                     bannedChannel: channel,
                 })
-                await schema.save();
+                await schema.save()
             }
 
             schema = await guildCommandsSchema.findOne({

@@ -1,19 +1,19 @@
-const { Client, CommandInteraction } = require('discord.js')
+const { ApplicationCommandOptionType, PermissionsBitField} = require('discord.js')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: 'purge',
-    description: 'deletes messages',
+    description: 'Deletes messages',
     options: [
         {
             name: 'amount',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The amount of messages to be deleted',
             required: true,
         },
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user of which messages to be deleted',
             required: false,
         },
@@ -32,8 +32,8 @@ module.exports = {
 
             if (interaction.member.roles.cache.some(r => roles.includes(r.id))) {
                 ok = true
-            }    
-            if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')) {
+            }
+            if (ok === true || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 let amount = parseInt(interaction.options.getString('amount'))
                 if (amount >= 100) {
                     amount = 99
@@ -42,7 +42,7 @@ module.exports = {
                     return await interaction.reply({ content: 'Not a valid number' })
                 }
                 const Messages = await interaction.channel.messages.fetch();
-                const target = interaction.options.getUser('user');
+                const target = interaction.options.getUser('user')
                 if (target) {
                     let i = 0
                     const filtered = [];

@@ -1,29 +1,29 @@
-const { Client, CommandInteraction } = require('discord.js')
-const ms = require('ms');
-const { MessageEmbed } = require('discord.js');
-const punishmentSchema = require('../Models/punishment-schema');
+const { ApplicationCommandOptionType, PermissionsBitField } = require('discord.js')
+const ms = require('ms')
+const { EmbedBuilder } = require('discord.js')
+const punishmentSchema = require('../Models/punishment-schema')
 const archiveSchema = require('../Models/archive-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: 'mute',
-    description: 'mutes a member',
+    description: 'Mutes a member',
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user to be muted',
             required: true,
         },
         {
             name: 'duration',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The duration of the mute',
             required: true,
         },
         {
             name: 'reason',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The reason for the mute',
             required: true,
         },
@@ -44,9 +44,9 @@ module.exports = {
                 ok = true
             }
 
-            if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')) {
-                const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
-                const mutedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
+            if (ok === true || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                const user = interaction.options.getUser('user') //FOLOSIT DOAR LA MEMBERTARGET
+                const mutedMember = interaction.options.getUser('user') //FOLOSIT DOAR LA NICKNAME
                 if (user) {
                     const result2 = await guildCommandsSchema.findOne({
                         guildID: guildId
@@ -114,26 +114,26 @@ module.exports = {
                     //TODO: daca e nr nu merge toLowerCase()
                     // let type = split[1].toLowerCase();
                     let type = split[1]
-                    if (type === 'h' || type === 'H' || type === 'hour' || type === 'HOUR') {
+                    if (type === 'h' && type === 'H' && type === 'hour' && type === 'HOUR') {
                         time2 *= 60
                     }
-                    else if (type === 'd' || type === 'D' || type === 'days' || type === 'DAYS') {
+                    else if (type === 'd' && type === 'D' && type === 'days' && type === 'DAYS') {
                         time2 *= 60 * 24
                     }
-                    else if (type !== 'm' || type !== 'M' || type !== 'minutes' || type !== 'MINUTES') {
-                        return await interaction.reply('Invalid format.');
+                    else if (type !== 'm' && type !== 'M' && type !== 'minutes' && type !== 'MINUTES') {
+                        return await interaction.reply('Invalid format.')
                     }
 
-                    await memberTarget.roles.add(muteRole);
+                    await memberTarget.roles.add(muteRole)
 
                     if (!muteReason) {
                         muteReason = 'No reason provided'
-                        await interaction.reply(`<@${memberTarget.user.id}> has been muted for ${ms(ms(time))}`);
+                        await interaction.reply(`<@${memberTarget.user.id}> has been muted for ${ms(ms(time))}`)
                     }
                     else {
-                        await interaction.reply(`<@${memberTarget.user.id}> has been muted for ${muteReason}, ${ms(ms(time))}`);
+                        await interaction.reply(`<@${memberTarget.user.id}> has been muted for ${muteReason}, ${ms(ms(time))}`)
                     }
-                    
+
                     //SANCTIUNI
                     const expires1 = new Date()
                     expires1.setMinutes(expires1.getMinutes() + time2)
@@ -155,12 +155,12 @@ module.exports = {
                         reason: muteReason,
                         type: 'mute',
                     })
-                    await arhiva.save();
-                    
+                    await arhiva.save()
+
                     //#SANCTIUNI
-                    const mesaj = new MessageEmbed()
+                    const message = new EmbedBuilder()
                         .setTitle('MUTE')
-                        .setColor('RED')
+                        .setColor('Red')
                         .addFields({
                             name: 'ID',
                             value: `${memberTarget.id}`,
@@ -197,7 +197,7 @@ module.exports = {
                             inline: true
                         })
                         .setTimestamp(Date.now())
-                        return client.channels.cache.get(channel).send({ embeds: [mesaj] });
+                    return client.channels.cache.get(channel).send({ embeds: [message] })
                 }
             }
             await interaction.reply({ content: '**❌ You are not authorized to use this**' });
@@ -209,9 +209,9 @@ module.exports = {
 }
 
 function containsNumber(str){
-    return /\d/.test(str);
+    return /\d/.test(str)
 }
 
 function containsWhitespace(str) {
-    return /\s/.test(str);
+    return /\s/.test(str)
 }

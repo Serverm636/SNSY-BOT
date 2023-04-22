@@ -1,21 +1,21 @@
-const { Client, CommandInteraction } = require('discord.js')
+const { ApplicationCommandOptionType, PermissionsBitField} = require('discord.js');
 const punishmentSchema = require('../Models/punishment-schema');
 const archiveSchema = require('../Models/archive-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: "edit",
-    description: "edits the reason of anything",
+    description: "Edits the reason of anything",
     options: [
         {
             name: 'id',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'the ID of the action to edit the reason',
             required: true,
         },
         {
             name: 'reason',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'the new reason of the action',
             required: true,
         },
@@ -28,10 +28,10 @@ module.exports = {
             })
             let ok = false
             if (!result.staffRole) {
-                return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+                return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
             }
             const staffRole = result.staffRole
-            if (interaction.member.roles.cache.some(r => r.id === staffRole) || interaction.member.permissions.has('ADMINISTRATOR')) {
+            if (interaction.member.roles.cache.some(r => r.id === staffRole) || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 ok = true
             }
             if (!ok) {
@@ -44,7 +44,7 @@ module.exports = {
             }
             let schema
             let found = false
-            let newReason = await interaction.options.getString('reason')
+            let newReason = interaction.options.getString('reason')
             schema = await punishmentSchema.findOne(query)
             if (schema) {
                 schema.reason = newReason

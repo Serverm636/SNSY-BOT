@@ -1,27 +1,26 @@
-const { Client, CommandInteraction } = require('discord.js')
-const { MessageEmbed } = require('discord.js');
-const punishmentSchema = require('../Models/punishment-schema');
+const { EmbedBuilder, ApplicationCommandOptionType, PermissionsBitField } = require('discord.js')
+const punishmentSchema = require('../Models/punishment-schema')
 const archiveSchema = require('../Models/archive-schema')
 const guildCommandsSchema = require('../Models/guildCommands-schema')
 
 module.exports = {
     name: 'soft',
-    description: 'soft bans/unbans a member',
+    description: 'Soft bans/unbans a member',
     options: [
         {
             name: 'ban',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'soft-bans a member',
             options: [
                 {
                     name: 'user',
-                    type: 'USER',
+                    type: ApplicationCommandOptionType.User,
                     description: 'The user to be banned',
                     required: true,
                 },
                 {
                     name: 'reason',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     description: 'The reason for the ban',
                     required: true,
                 },
@@ -29,18 +28,18 @@ module.exports = {
         },
         {
             name: 'unban',
-            type: 'SUB_COMMAND',
+            type: ApplicationCommandOptionType.Subcommand,
             description: 'soft-unbans a member',
             options: [
                 {
                     name: 'user',
-                    type: 'USER',
+                    type: ApplicationCommandOptionType.User,
                     description: 'The user to be unbanned',
                     required: true,
                 },
                 {
                     name: 'reason',
-                    type: 'STRING',
+                    type: ApplicationCommandOptionType.String,
                     description: 'The reason for the unban',
                     required: true,
                 },
@@ -144,7 +143,7 @@ module.exports = {
                     })
                     schema.mainRole = ''
                     await schema.save()
-                    return await interaction.reply({content: '**❌ The main role have not been set up. Please use `/set main-role`**'})
+                    return await interaction.reply({ content: '**❌ The main role have not been set up. Please use `/set main-role`**' })
                 }
             }
 
@@ -155,21 +154,21 @@ module.exports = {
                     guildID: guildId
                 })
                 if (!result.rolesBan) {
-                    return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+                    return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
                 }
                 const roles = result.rolesBan.split(" ")
-        
+
                 if (interaction.member.roles.cache.some(r => roles.includes(r.id))) {
-                    ok = true;
+                    ok = true
                 }
 
-                if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')) {
-                    const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
-                    const bannedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
+                if (ok === true || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                    const user = interaction.options.getUser('user') //FOLOSIT DOAR LA MEMBERTARGET
+                    const bannedMember = interaction.options.getUser('user') //FOLOSIT DOAR LA NICKNAME
                     if (user) {
-                        let memberTarget = interaction.guild.members.cache.get(user.id);
+                        let memberTarget = interaction.guild.members.cache.get(user.id)
                         if (memberTarget.roles.cache.some(r => roles.includes(r.id))) {
-                            return await interaction.reply('**CAN\'T BAN THAT MEMBER**');
+                            return await interaction.reply('**CAN\'T BAN THAT MEMBER**')
                         }
                         const result = await punishmentSchema.findOne({
                             guildID: guildId,
@@ -179,16 +178,16 @@ module.exports = {
                         if (result) {
                             return await interaction.reply({ content: `❌ <@${user.id}> is already banned.` })
                         }
-                        let banReason = interaction.options.getString('reason');
-                        await memberTarget.roles.remove(memberTarget.roles.cache);
-                        await memberTarget.roles.add(banRole);
+                        let banReason = interaction.options.getString('reason')
+                        await memberTarget.roles.remove(memberTarget.roles.cache)
+                        await memberTarget.roles.add(banRole)
 
                         if (!banReason) {
                             banReason = 'No reason provided'
-                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned.` });
+                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned.` })
                         }
                         else {
-                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned for ${banReason}.` });
+                            await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been banned for ${banReason}.` })
                         }
 
                         //SANCTIUNI
@@ -199,7 +198,7 @@ module.exports = {
                             reason: banReason,
                             type: 'ban',
                         })
-                        await schema.save();
+                        await schema.save()
 
                         //ARHIVA
                         let arhiva = await archiveSchema.create({
@@ -209,12 +208,12 @@ module.exports = {
                             reason: banReason,
                             type: 'ban',
                         })
-                        await arhiva.save();
+                        await arhiva.save()
 
                         //#SANCTIUNI
-                        const mesaj = new MessageEmbed()
+                        const messsage = new EmbedBuilder()
                             .setTitle('BAN')
-                            .setColor('RED')
+                            .setColor('Red')
                             .addFields({
                                 name: 'ID',
                                 value: `${memberTarget.id}`,
@@ -246,10 +245,10 @@ module.exports = {
                                 inline: true
                             })
                             .setTimestamp(Date.now())
-                        return client.channels.cache.get(channel).send({ embeds: [mesaj] });
+                        return client.channels.cache.get(channel).send({ embeds: [messsage] })
                     }
                 }
-                await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+                await interaction.reply({ content: '**❌ You are not authorized to use this**' })
             }
             else if (subCommand === 'unban') {
                 let ok = false
@@ -257,16 +256,16 @@ module.exports = {
                     guildID: guildId
                 })
                 if (!result.rolesUnban) {
-                    return await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+                    return await interaction.reply({ content: '**❌ You are not authorized to use this**' })
                 }
                 const roles = result.rolesUnban.split(" ")
-        
+
                 if (interaction.member.roles.cache.some(r => roles.includes(r.id))) {
-                    ok = true;
+                    ok = true
                 }
-                if (ok === true || interaction.member.permissions.has('ADMINISTRATOR')) {
-                    const user = interaction.options.getUser('user'); //FOLOSIT DOAR LA MEMBERTARGET
-                    const bannedMember = interaction.options.getUser('user'); //FOLOSIT DOAR LA NICKNAME
+                if (ok === true || interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                    const user = interaction.options.getUser('user') //FOLOSIT DOAR LA MEMBERTARGET
+                    const bannedMember = interaction.options.getUser('user') //FOLOSIT DOAR LA NICKNAME
                     if (user) {
                         let memberTarget = interaction.guild.members.cache.get(user.id)
                         let unbanReason = interaction.options.getString('reason')
@@ -279,18 +278,18 @@ module.exports = {
                             await memberTarget.roles.add(mainRoles)
                         }
                         await memberTarget.roles.remove(banRole);
-                        await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unbanned.` });
+                        await interaction.reply({ content: `✅ <@${memberTarget.user.id}> has been unbanned.` })
                         if (!unbanReason) {
                             unbanReason = 'No reason provided'
                         }
-        
+
                         //DELETING FROM DATABASE
                         const query = {
                             guildID: guildId,
                             userID: memberTarget.user.id,
                         }
                         await punishmentSchema.deleteMany(query)
-        
+
                         //ARHIVA
                         let arhiva = await archiveSchema.create({
                             guildID: guildId,
@@ -299,12 +298,12 @@ module.exports = {
                             reason: unbanReason,
                             type: 'unban',
                         })
-                        await arhiva.save();
-        
+                        await arhiva.save()
+
                         //#SANCTIUNI
-                        const mesaj = new MessageEmbed()
+                        const message = new EmbedBuilder()
                             .setTitle('UNBAN')
-                            .setColor('GREEN')
+                            .setColor('Green')
                             .addFields({
                                 name: 'ID',
                                 value: `${memberTarget.id}`,
@@ -336,11 +335,11 @@ module.exports = {
                                 inline: true
                             })
                             .setTimestamp(Date.now())
-                            return client.channels.cache.get(channel).send({ embeds: [mesaj] });
+                        return client.channels.cache.get(channel).send({ embeds: [message] })
                     }
                 }
             }
-            await interaction.reply({ content: '**❌ You are not authorized to use this**' });
+            await interaction.reply({ content: '**❌ You are not authorized to use this**' })
         } catch(err) {
             await interaction.reply({ content: '**❌ Oops something went wrong... check if my role is above all the other roles 🤔**' })
             console.log(err)
@@ -353,5 +352,5 @@ function isIterable(obj) {
     if (obj == null) {
         return false;
     }
-    return typeof obj[Symbol.iterator] === 'function';
+    return typeof obj[Symbol.iterator] === 'function'
 }
